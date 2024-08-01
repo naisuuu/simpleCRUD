@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class MessageController {
 
-    @GetMapping("/message")
+    @GetMapping("/")
     public String messageForm(Model model){
         model.addAttribute("message", new Message());
         return "message";
     }
 
-    @PostMapping("/message")
+    @PostMapping("/")
     public String messageSubmit(@ModelAttribute Message message, Model model){
         model.addAttribute("message", message);
         return "result";
