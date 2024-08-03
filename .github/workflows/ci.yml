@@ -49,7 +49,6 @@ jobs:
   deploy:
     needs: docker
     runs-on: ubuntu-latest
-    uses: 
     steps:
     - name: SSH into server and deploy container
       uses: appleboy/ssh-action@v0.1.2
