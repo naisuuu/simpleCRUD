@@ -26,12 +26,18 @@ jobs:
     - name: Test
       run: mvn test
 
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      #https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ vars.DOCKERHUB_USERNAME }} #Here
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Set up Docker Buildx
+
+    - name: Set up Docker Buildx b
       uses: docker/setup-buildx-action@v3
       
     - name: Build and push
@@ -39,3 +45,22 @@ jobs:
       with:
         push: true
         tags: ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
+
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    uses: 
+    steps:
+    - name: SSH into server and deploy container
+      uses: appleboy/ssh-action@v0.1.2
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_KEY }}
+        script: |
+          chmod +x deploy.sh
+          ./deploy.sh
+
+
+
+
