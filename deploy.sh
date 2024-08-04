@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Log into Docker Hub
+echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+
  # Pull latest docker image of repo
  docker pull $DOCKERHUB_USERNAME/simplecrud:latest
 
