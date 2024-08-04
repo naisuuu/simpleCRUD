@@ -50,16 +50,18 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     steps:
-    - name: SSH into server and deploy container
-      uses: appleboy/ssh-action@v0.1.2 # https://github.com/appleboy/ssh-action
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.DEPLOY_KEY }}
-        script: |
-          chmod +x deploy.sh
-          ./deploy.sh
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-
-
-
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p ~/deploy && cd ~/deploy
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key.pem
+            chmod 600 deploy_key.pem
+            scp -i deploy_key.pem deploy.sh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:~/deploy/
+            ssh -i deploy_key.pem ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'bash ~/deploy/deploy.sh'
