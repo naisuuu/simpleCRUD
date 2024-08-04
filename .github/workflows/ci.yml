@@ -49,6 +49,7 @@ jobs:
   deploy:
     needs: docker
     runs-on: ubuntu-latest
+    environment: deploy
 
     #https://www.youtube.com/watch?v=OjRevvZvWX4
     steps:
