@@ -50,6 +50,7 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
 
+    #https://www.youtube.com/watch?v=OjRevvZvWX4
     steps:
       - name: Push to EC2
         uses: appleboy/ssh-action@master
