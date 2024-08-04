@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH into server and deploy container
-      uses: appleboy/ssh-action@v0.1.2
+      uses: appleboy/ssh-action@v0.1.2 # https://github.com/appleboy/ssh-action
       with:
         host: ${{ secrets.DEPLOY_HOST }}
         username: ${{ secrets.DEPLOY_USER }}
