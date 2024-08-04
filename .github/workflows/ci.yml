@@ -65,15 +65,16 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'aws ecr get-login-password ${{ secrets.AWS_REGION }} | docker login --username ${{ var.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_TOKEN }} ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest'
+            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_TOKEN }}'
+
       - name: Stop existing container
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -q | xargs -r docker stop'     
+                ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -q | xargs -r docker stop'
 
       - name: Remove existing container
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -aq | xargs -r docker rm'
+                ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -aq | xargs -r docker rm'
 
       - name: Pull and run the new container
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker pull ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
+                ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker pull ${{ secrets.DOCKERHUB_USERNAME }}/simplecrud:latest && docker run -d -p 8080:8080 --name simplecrud ${{ secrets.DOCKERHUB_USERNAME }}/simplecrud:latest'
