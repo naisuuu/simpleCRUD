@@ -39,7 +39,7 @@ jobs:
 
     - name: Set up Docker Buildx b
       uses: docker/setup-buildx-action@v3
-      
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
@@ -49,10 +49,31 @@ jobs:
   deploy:
     needs: docker
     runs-on: ubuntu-latest
+
     steps:
-      - name: Deploy to server
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-east-1
+
+      - name: Configure SSH key
+        uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }};
-            source ExampleApplication/deploy.sh
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'aws ecr get-login-password ${{ secrets.AWS_REGION }} | docker login --username ${{ var.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_TOKEN }} ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest'
+      - name: Stop existing container
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -q | xargs -r docker stop'     
+
+      - name: Remove existing container
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -aq | xargs -r docker rm'
+
+      - name: Pull and run the new container
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker pull ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
