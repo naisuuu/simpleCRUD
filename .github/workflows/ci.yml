@@ -51,23 +51,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure SSH key
-        uses: webfactory/ssh-agent@v0.4.1
+      - name: Push to EC2
+        uses: appleboy/ssh-action@master
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Deploy to EC2
-        run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_TOKEN}}'
-
-      - name: Stop existing container
-        run: |
-                ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -q | xargs -r docker stop'
-
-      - name: Remove existing container
-        run: |
-                ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker ps -aq | xargs -r docker rm'
-
-      - name: Pull and run the new container
-        run: |
-                ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'docker pull ${{ secrets.DOCKERHUB_USERNAME }}/simplecrud:latest && docker run -d -p 8080:8080 --name simplecrud ${{ secrets.DOCKERHUB_USERNAME }}/simplecrud:latest'
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER}}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          script: |
+            bash deploy.sh
