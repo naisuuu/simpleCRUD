@@ -61,4 +61,4 @@ jobs:
             docker stop simplecrud || true
             docker rm simplecrud || true
             docker pull ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
-            docker run -d --name simplecrud -p 80:80 ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
+            docker run -d --name simplecrud -p 8080:8080 ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
