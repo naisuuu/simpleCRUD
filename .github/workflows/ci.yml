@@ -58,4 +58,7 @@ jobs:
           username: ${{ secrets.SSH_USER}}
           key: ${{secrets.SSH_PRIVATE_KEY}}
           script: |
-            bash deploy.sh
+            docker stop || true
+            docker rm || true
+            docker pull ${{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
+            docker run -d --name simplecrud -p 80:80 {{ vars.DOCKERHUB_USERNAME }}/simplecrud:latest
